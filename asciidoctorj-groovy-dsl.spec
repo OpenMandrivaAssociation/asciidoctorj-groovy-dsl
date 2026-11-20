@@ -1,6 +1,6 @@
 Name:		asciidoctorj-groovy-dsl
 Version:	3.0.0.beta.2
-Release:	1
+Release:	2
 Summary:	Groovy DSL for AsciidoctorJ extensions
 Group:		Development/Java
 License:	Apache-2.0
@@ -21,11 +21,16 @@ BuildRequires:	ant-lib
 BuildRequires:	asciidoctorj
 BuildRequires:	mvn(org.asciidoctor:asciidoctorj) = 3.0.1
 BuildRequires:	mvn(org.asciidoctor:asciidoctorj-api) = 3.0.1
-BuildRequires:	mvn(org.jruby:jruby) = 9.4.14.0
+BuildRequires:	mvn(org.jruby:jruby) = 10.1.3.0
+BuildRequires:	mvn(ch.randelshofer:fastdoubleparser)
 BuildRequires:	sysjar
 BuildRequires:	javapackages-filesystem
 Requires:	apache-groovy
 Requires:	asciidoctorj
+%{!?jruby_jar:%global jruby_jar %{_javadir}/jruby.jar}
+%{!?dirgra_jar:%global dirgra_jar %{_javadir}/dirgra.jar}
+%{!?invokebinder_jar:%global invokebinder_jar %{_javadir}/invokebinder.jar}
+%{!?asciidoctorj_jar:%global asciidoctorj_jar %{_javadir}/asciidoctorj.jar}
 
 %description
 org.asciidoctor:asciidoctorj-groovy-dsl %{version}. AsciidoctorExtensions
@@ -68,7 +73,7 @@ do
 	test -s "$extra"
 	tool_cp=$tool_cp:$extra
 done
-src_cp=%{_javadir}/asciidoctorj.jar:%{_javadir}/asciidoctorj-api.jar:%{_javadir}/jruby.jar:%{_javadir}/apache-groovy.jar
+src_cp=%{asciidoctorj_jar}:%{_javadir}/asciidoctorj-api.jar:%{jruby_jar}:%{_javadir}/apache-groovy.jar
 mkdir -p classes
 java -Dgroovy.target.bytecode=17 -cp "$tool_cp" org.codehaus.groovy.tools.FileSystemCompiler \
 	--classpath "$src_cp" -j '-J-release=17' -d classes @sources.list
@@ -127,7 +132,7 @@ export JAVA_HOME=%{_jvmdir}/java-openjdk
 export PATH="$JAVA_HOME/bin:$PATH"
 JAR=%{buildroot}%{_javadir}/asciidoctorj-groovy-dsl.jar
 test -s "$JAR"
-CP="$JAR:%{_javadir}/asciidoctorj.jar:%{_javadir}/asciidoctorj-api.jar:%{_javadir}/jruby.jar:%{_javadir}/apache-groovy.jar:%{_javadir}/antlr4-runtime.jar"
+CP="$JAR:%{asciidoctorj_jar}:%{_javadir}/asciidoctorj-api.jar:%{jruby_jar}:%{_javadir}/apache-groovy.jar:%{_javadir}/antlr4-runtime.jar"
 for extra in \
 	%{_javadir}/asm.jar \
 	%{_javadir}/asm-commons.jar \
@@ -143,14 +148,15 @@ for extra in \
 	%{_javadir}/jffi.jar \
 	%{_javadir}/joni.jar \
 	%{_javadir}/jcodings.jar \
-	%{_javadir}/dirgra.jar \
-	%{_javadir}/invokebinder.jar \
+	%{dirgra_jar} \
+	%{invokebinder_jar} \
 	%{_javadir}/options.jar \
 	%{_javadir}/jzlib.jar \
 	%{_javadir}/joda-time.jar \
 	%{_javadir}/jitescript.jar \
 	%{_javadir}/backport9.jar \
 	%{_javadir}/crac.jar \
+	%{_javadir}/fastdoubleparser.jar \
 	%{_javadir}/ant.jar
 do
 	test -s "$extra"
